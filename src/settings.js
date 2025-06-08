@@ -61,6 +61,54 @@ const BORDER_SETTINGS = [
             "Undeclared commercial activity",
             "Falsified transport documentation"
         ]
+    },
+    {
+        "id": "alpinia_metropol",
+        "name": "Alpinia-Metropol Mountain Pass",
+        "situation": "High-altitude border crossing with strict environmental regulations. Monitoring scientific expeditions and rare mineral trafficking.",
+        "description": "The challenging mountain pass between the alpine nation of Alpinia and the city-state of Metropol. Environmental protection and scientific research permits are heavily regulated.",
+        "document_requirements": [
+            "Permit must start with 'P' followed by 4 digits",
+            "Scientific personnel require research authorization",
+            "Environmental impact assessments mandatory for expeditions"
+        ],
+        "common_issues": [
+            "Forged research credentials",
+            "Undeclared scientific equipment",
+            "Illegal rare mineral smuggling"
+        ]
+    },
+    {
+        "id": "desert_emirates_republic",
+        "name": "Desert Emirates-Republic Checkpoint",
+        "situation": "Oil-rich region with complex diplomatic relations. Focus on energy sector workers and diplomatic immunity abuse.",
+        "description": "The bustling border between the wealthy Desert Emirates and the industrial Republic. Energy trade dominates, but diplomatic tensions create security challenges.",
+        "document_requirements": [
+            "Permit must start with 'P' followed by 4 digits",
+            "Energy sector workers need specialized clearance",
+            "Diplomatic personnel require verified immunity status"
+        ],
+        "common_issues": [
+            "Abuse of diplomatic immunity",
+            "Forged energy sector credentials",
+            "Unauthorized technology transfers"
+        ]
+    },
+    {
+        "id": "frozen_archipelago_mainland",
+        "name": "Frozen Archipelago-Mainland Ice Bridge",
+        "situation": "Seasonal ice bridge crossing with indigenous rights concerns. Monitoring cultural artifacts and traditional fishing permits.",
+        "description": "The temporary ice bridge connecting the indigenous territories of Frozen Archipelago to the Mainland. Cultural preservation and traditional rights create unique documentation challenges.",
+        "document_requirements": [
+            "Permit must start with 'P' followed by 4 digits",
+            "Indigenous travelers need tribal verification",
+            "Cultural artifacts require heritage documentation"
+        ],
+        "common_issues": [
+            "Forged tribal credentials",
+            "Illegal cultural artifact trafficking",
+            "Unauthorized fishing in traditional waters"
+        ]
     }
 ];
 

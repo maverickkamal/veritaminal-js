@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 /**
  * Main module for Veritaminal
  * Entry point for the game that initializes components and runs the main game loop.

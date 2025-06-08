@@ -1,11 +1,49 @@
 {
-  "name": "js_game",
+  "name": "veritaminal",
+  "version": "1.0.0",
+  "description": "An AI-powered border control simulation game inspired by Papers, Please. Make critical decisions as a border agent while navigating corruption, trust, and moral dilemmas across multiple story-driven scenarios.",
+  "keywords": [
+    "game",
+    "simulation",
+    "border-control",
+    "ai",
+    "papers-please",
+    "decision-making",
+    "strategy",
+    "narrative",
+    "terminal",
+    "cli"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/maverickkamal/veritaminal-js#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maverickkamal/veritaminal-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/maverickkamal/veritaminal-js/issues"
+  },
+  "main": "src/main.js",
   "module": "src/main.js",
   "type": "module",
+  "bin": {
+    "veritaminal": "./src/main.js"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "scripts": {
     "start": "bun run src/main.js",
-    "start:node": "node src/main.js"
+    "start:node": "node src/main.js",
+    "play": "node src/main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "files": [
+    "src/",
+    "README.md",
+    "LICENSE"
+  ],
   "devDependencies": {
     "@types/bun": "latest"
   },
