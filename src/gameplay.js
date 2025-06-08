@@ -456,6 +456,15 @@ class GameplayManager {
      */
     async saveGame() {
         console.log(chalk.blue("Gameplay: Attempting to save game..."));
+        
+        // Save complete settings state before saving to file
+        const settingsData = {
+            currentSetting: this.settingsManager.getCurrentSetting(),
+            customRules: this.settingsManager.customRules,
+            gameConfig: this.settingsManager.getGameConfig()
+        };
+        this.memoryManager.updateSettings(settingsData);
+        
         return await this.memoryManager.saveGame(); // Filename handled by memory manager
     }
 
@@ -477,15 +486,31 @@ class GameplayManager {
                  return 0; // Reset score on load for now.
              }, 0);
 
-            // Set the correct border setting based on loaded data
-            const loadedSetting = this.memoryManager.memory.borderSetting;
-            if (loadedSetting && loadedSetting.id) {
-                this.settingsManager.selectSetting(loadedSetting.id);
-                // Restore custom rules if they were saved (currently not saved in memory.js)
-                // this.settingsManager.customRules = loadedMemory.customRules || [];
+            // Restore complete settings state from saved data
+            const savedSettings = this.memoryManager.getSavedSettings();
+            
+            // Restore game configuration
+            if (savedSettings.gameConfig) {
+                this.settingsManager.gameConfig = { ...savedSettings.gameConfig };
+                this.travelersPerDay = savedSettings.gameConfig.travelersPerDay;
+            }
+            
+            // Restore custom rules
+            if (savedSettings.customRules) {
+                this.settingsManager.customRules = [...savedSettings.customRules];
+            }
+            
+            // Set the correct border setting
+            if (savedSettings.currentSettingId) {
+                this.settingsManager.selectSetting(savedSettings.currentSettingId);
             } else {
-                 // If no setting in save file, default to first
-                 this.settingsManager.selectSetting(this.settingsManager.getAvailableSettings()[0].id);
+                // Fallback to legacy border setting data or first setting
+                const loadedSetting = this.memoryManager.memory.borderSetting;
+                if (loadedSetting && loadedSetting.id) {
+                    this.settingsManager.selectSetting(loadedSetting.id);
+                } else {
+                    this.settingsManager.selectSetting(this.settingsManager.getAvailableSettings()[0].id);
+                }
             }
 
             // Set game_completed flag if loaded day is past the limit

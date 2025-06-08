@@ -39,6 +39,16 @@ class MemoryManager {
                 corruption: 0, // Incorrect approves
                 trust: 0       // Incorrect denies (represented as negative value)
             },
+            // Add complete settings data
+            settings: {
+                currentSettingId: null,        // ID of the current border setting
+                customRules: [],               // Custom rules added during gameplay
+                gameConfig: {                  // Game configuration
+                    totalDays: 10,
+                    travelersPerDay: 5,
+                    allowCustomization: true
+                }
+            },
             travelerHistory: [], // List of previous travelers (limited size)
             decisions: [],       // List of player decisions (limited size)
             narrativeEvents: [], // Key narrative events (limited size)
@@ -66,6 +76,37 @@ class MemoryManager {
      */
     setBorderSetting(setting) {
         this.memory.borderSetting = setting;
+        if (setting && setting.id) {
+            this.memory.settings.currentSettingId = setting.id;
+        }
+    }
+
+    /**
+     * Updates the complete settings data including game configuration and custom rules.
+     * @param {object} settingsData - Settings data from SettingsManager
+     */
+    updateSettings(settingsData) {
+        if (settingsData.currentSetting && settingsData.currentSetting.id) {
+            this.memory.settings.currentSettingId = settingsData.currentSetting.id;
+        }
+        if (settingsData.customRules) {
+            this.memory.settings.customRules = [...settingsData.customRules];
+        }
+        if (settingsData.gameConfig) {
+            this.memory.settings.gameConfig = { ...settingsData.gameConfig };
+        }
+    }
+
+    /**
+     * Gets the saved settings data.
+     * @returns {object} Saved settings data
+     */
+    getSavedSettings() {
+        return {
+            currentSettingId: this.memory.settings.currentSettingId,
+            customRules: [...this.memory.settings.customRules],
+            gameConfig: { ...this.memory.settings.gameConfig }
+        };
     }
 
     /**
@@ -154,6 +195,18 @@ class MemoryManager {
     }
 
     /**
+     * Adds a custom rule to the settings.
+     * @param {string} ruleDescription - Description of the custom rule.
+     */
+    addCustomRule(ruleDescription) {
+        if (!this.memory.settings.customRules.includes(ruleDescription)) {
+            this.memory.settings.customRules.push(ruleDescription);
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Updates the game state.
      * @param {object} stateUpdates - Updates to apply to the game state (e.g., { corruption: 1 }).
      */
@@ -186,8 +239,18 @@ class MemoryManager {
         // Add current game state
         context.push(`\nCURRENT GAME STATE:`);
         context.push(`- Day: ${this.memory.gameState.day}`);
+        context.push(`- Assignment Length: ${this.memory.settings.gameConfig.totalDays} days`);
+        context.push(`- Travelers per Day: ${this.memory.settings.gameConfig.travelersPerDay}`);
         context.push(`- Corruption Score (Incorrect Approvals): ${this.memory.gameState.corruption}`);
         context.push(`- Trust Score (Starts 0, Incorrect Denials decrease it): ${this.memory.gameState.trust}`);
+
+        // Add custom rules (if any)
+        if (this.memory.settings.customRules.length > 0) {
+            context.push("\nCUSTOM RULES:");
+            this.memory.settings.customRules.forEach(rule => {
+                context.push(`- ${rule}`);
+            });
+        }
 
         // Add recent rules (if any)
         if (this.memory.ruleChanges.length > 0) {
@@ -291,6 +354,10 @@ class MemoryManager {
                 gameState: { // Ensure gameState and its keys exist
                      ...(this.getDefaultMemory().gameState),
                      ...(loadedMemory.gameState || {})
+                },
+                settings: { // Ensure settings and its keys exist (backwards compatibility)
+                    ...(this.getDefaultMemory().settings),
+                    ...(loadedMemory.settings || {})
                 },
                 usedNames: loadedMemory.usedNames // Make sure the Set is preserved
              };
