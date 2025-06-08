@@ -4,6 +4,14 @@
 
 Make critical decisions as a border agent while navigating corruption, trust, and moral dilemmas across multiple story-driven scenarios. Every decision matters in this terminal-based game that combines strategic thinking with narrative depth.
 
+![alt text](images/Screenshot%202025-06-08%20232136.png)
+
+![alt text](images/Screenshot%202025-06-08%20232024.png)
+
+![alt text](images/Screenshot%202025-06-08%20232008.png)
+
+![alt text](images/Screenshot%202025-06-08%20231944.png)
+
 ## ✨ Features
 
 ### 🎮 Core Gameplay
