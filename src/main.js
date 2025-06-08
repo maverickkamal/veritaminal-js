@@ -129,7 +129,10 @@ async function runMainMenuLoop(menuManager) {
             case '4': // View Game Rules
                 await menuManager.viewGameRules();
                 break;
-            case '5': // Quit Game
+            case '5': // Game Configuration Settings
+                await menuManager.gameConfigurationSettings();
+                break;
+            case '6': // Quit Game
                 keepRunning = false;
                 menuManager.ui.print("\nThank you for playing Veritaminal!", 'success');
                 break;

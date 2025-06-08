@@ -74,6 +74,13 @@ class SettingsManager {
         this.availableSettings = BORDER_SETTINGS;
         /** @type {string[]} */
         this.customRules = [];
+        
+        // Game configuration settings
+        this.gameConfig = {
+            totalDays: 10,           // Total days to complete the assignment
+            travelersPerDay: 5,      // Number of travelers to process per day
+            allowCustomization: true  // Whether players can modify these settings
+        };
         // Note: UI instance removed here; display logic belongs in ui.js
     }
 
@@ -162,6 +169,71 @@ class SettingsManager {
         }
 
         return context.join("\n");
+    }
+
+    /**
+     * Get current game configuration settings.
+     * @returns {object} Current game configuration.
+     */
+    getGameConfig() {
+        return { ...this.gameConfig }; // Return a copy to prevent external modification
+    }
+
+    /**
+     * Update game configuration settings.
+     * @param {object} newConfig - New configuration values { totalDays?, travelersPerDay? }.
+     * @returns {boolean} True if configuration was updated successfully.
+     */
+    updateGameConfig(newConfig) {
+        if (!this.gameConfig.allowCustomization) {
+            console.warn(chalk.yellow("Game configuration customization is disabled."));
+            return false;
+        }
+
+        let updated = false;
+        
+        if (newConfig.totalDays !== undefined) {
+            const days = parseInt(newConfig.totalDays);
+            if (days >= 1 && days <= 30) { // Reasonable limits
+                this.gameConfig.totalDays = days;
+                updated = true;
+            } else {
+                console.warn(chalk.yellow(`Invalid totalDays value: ${newConfig.totalDays}. Must be 1-30.`));
+            }
+        }
+
+        if (newConfig.travelersPerDay !== undefined) {
+            const travelers = parseInt(newConfig.travelersPerDay);
+            if (travelers >= 1 && travelers <= 20) { // Reasonable limits
+                this.gameConfig.travelersPerDay = travelers;
+                updated = true;
+            } else {
+                console.warn(chalk.yellow(`Invalid travelersPerDay value: ${newConfig.travelersPerDay}. Must be 1-20.`));
+            }
+        }
+
+        if (updated) {
+            console.log(chalk.green(`Game configuration updated: ${this.gameConfig.totalDays} days, ${this.gameConfig.travelersPerDay} travelers per day.`));
+        }
+
+        return updated;
+    }
+
+    /**
+     * Reset game configuration to defaults.
+     */
+    resetGameConfig() {
+        this.gameConfig.totalDays = 10;
+        this.gameConfig.travelersPerDay = 5;
+        console.log(chalk.blue("Game configuration reset to defaults."));
+    }
+
+    /**
+     * Get a formatted string of current game configuration for display.
+     * @returns {string} Formatted configuration info.
+     */
+    getGameConfigSummary() {
+        return `Assignment Duration: ${this.gameConfig.totalDays} days\nTravelers per Day: ${this.gameConfig.travelersPerDay} people`;
     }
 }
 

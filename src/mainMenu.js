@@ -82,7 +82,8 @@ class MainMenuManager {
             { name: 'Continue Previous Career', value: '2' },
             { name: 'View Border Settings Info', value: '3' },
             { name: 'View Game Rules & Commands', value: '4' },
-            { name: 'Quit Game', value: '5' },
+            { name: 'Game Configuration Settings', value: '5' },
+            { name: 'Quit Game', value: '6' },
         ];
 
         const selection = await this.ui.getListChoice("Select an option:", choices);
@@ -115,8 +116,18 @@ class MainMenuManager {
         const selectedSetting = this.gameplayManager.initializeGame(selectedId);
 
         this.ui.clearScreen();
+        this.ui.drawBorder("ASSIGNMENT BRIEFING");
+        
         this.ui.print(`Assignment: ${this.ui.coloredText(selectedSetting.name, 'header')}`);
         this.ui.print(`Situation: ${this.ui.coloredText(selectedSetting.situation, 'value')}\n`);
+        
+        // Show game configuration
+        const gameConfig = this.settingsManager.getGameConfig();
+        this.ui.print("Assignment Details:", 'header');
+        this.ui.print(`- Duration: ${this.ui.coloredText(`${gameConfig.totalDays} days`, 'value')}`);
+        this.ui.print(`- Travelers per day: ${this.ui.coloredText(`${gameConfig.travelersPerDay} people`, 'value')}`);
+        this.ui.print(`- Total travelers: ${this.ui.coloredText(`${gameConfig.totalDays * gameConfig.travelersPerDay} people`, 'value')}\n`);
+        
         this.ui.print("Current Rules:", 'header');
         this.settingsManager.getAllRules().forEach(rule => this.ui.print(`- ${rule}`, 'value'));
 
@@ -198,6 +209,115 @@ class MainMenuManager {
         });
 
         await this.ui.pressEnterToContinue("Press Enter to return to main menu...");
+    }
+
+    /**
+     * Displays and manages game configuration settings.
+     * @async
+     */
+    async gameConfigurationSettings() {
+        let keepConfiguring = true;
+        
+        while (keepConfiguring) {
+            this.ui.clearScreen();
+            this.ui.drawBorder("GAME CONFIGURATION SETTINGS");
+
+            const config = this.settingsManager.getGameConfig();
+            
+            this.ui.print("Current Configuration:", 'header');
+            this.ui.print(`Assignment Duration: ${this.ui.coloredText(`${config.totalDays} days`, 'value')}`);
+            this.ui.print(`Travelers per Day: ${this.ui.coloredText(`${config.travelersPerDay} people`, 'value')}`);
+            this.ui.print(`Total Travelers: ${this.ui.coloredText(`${config.totalDays * config.travelersPerDay} people`, 'value')}\n`);
+
+            const choices = [
+                { name: `Change Assignment Duration (Currently: ${config.totalDays} days)`, value: 'days' },
+                { name: `Change Travelers per Day (Currently: ${config.travelersPerDay} people)`, value: 'travelers' },
+                { name: 'Reset to Defaults (10 days, 5 travelers/day)', value: 'reset' },
+                { name: 'Return to Main Menu', value: 'back' }
+            ];
+
+            const selection = await this.ui.getListChoice("Select an option:", choices);
+
+            switch (selection) {
+                case 'days':
+                    await this._configureDays();
+                    break;
+                case 'travelers':
+                    await this._configureTravelers();
+                    break;
+                case 'reset':
+                    this.settingsManager.resetGameConfig();
+                    this.ui.print("\nConfiguration reset to defaults!", 'success');
+                    await this.ui.pressEnterToContinue();
+                    break;
+                case 'back':
+                default:
+                    keepConfiguring = false;
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Configure the number of days for the assignment.
+     * @async
+     * @private
+     */
+    async _configureDays() {
+        this.ui.clearScreen();
+        this.ui.drawBorder("CONFIGURE ASSIGNMENT DURATION");
+        
+        this.ui.print("Enter the number of days for your assignment:", 'header');
+        this.ui.print("Valid range: 1-30 days", 'dim');
+        this.ui.print("Recommended: 5-15 days for balanced gameplay\n", 'dim');
+
+        const input = await this.ui.getUserInput("Days (1-30): ");
+        const days = parseInt(input);
+
+        if (isNaN(days) || days < 1 || days > 30) {
+            this.ui.print("Invalid input. Please enter a number between 1 and 30.", 'error');
+            await this.ui.pressEnterToContinue();
+            return;
+        }
+
+        const success = this.settingsManager.updateGameConfig({ totalDays: days });
+        if (success) {
+            this.ui.print(`\nAssignment duration set to ${days} days!`, 'success');
+        } else {
+            this.ui.print("\nFailed to update configuration.", 'error');
+        }
+        await this.ui.pressEnterToContinue();
+    }
+
+    /**
+     * Configure the number of travelers per day.
+     * @async
+     * @private
+     */
+    async _configureTravelers() {
+        this.ui.clearScreen();
+        this.ui.drawBorder("CONFIGURE TRAVELERS PER DAY");
+        
+        this.ui.print("Enter the number of travelers to process each day:", 'header');
+        this.ui.print("Valid range: 1-20 travelers", 'dim');
+        this.ui.print("Recommended: 3-8 travelers for balanced gameplay\n", 'dim');
+
+        const input = await this.ui.getUserInput("Travelers per day (1-20): ");
+        const travelers = parseInt(input);
+
+        if (isNaN(travelers) || travelers < 1 || travelers > 20) {
+            this.ui.print("Invalid input. Please enter a number between 1 and 20.", 'error');
+            await this.ui.pressEnterToContinue();
+            return;
+        }
+
+        const success = this.settingsManager.updateGameConfig({ travelersPerDay: travelers });
+        if (success) {
+            this.ui.print(`\nTravelers per day set to ${travelers}!`, 'success');
+        } else {
+            this.ui.print("\nFailed to update configuration.", 'error');
+        }
+        await this.ui.pressEnterToContinue();
     }
 
     /**

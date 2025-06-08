@@ -60,9 +60,10 @@ class GameplayManager {
         this._initializeRules();
         /** @type {import('./api.js').AIJudgment | null} */
         this.aiJudgment = null; // Stores the AI's judgment of the current document
-        this.gameCompleted = false; // Track if player has completed a full game (e.g., 10 days)
+        this.gameCompleted = false; // Track if player has completed a full game
         this.travelersProcessedToday = 0;
-        this.travelersPerDay = 5; // Example: 5 travelers per day
+        // Get travelers per day from settings manager
+        this.travelersPerDay = this.settingsManager.getGameConfig().travelersPerDay;
     }
 
     /** Initialize basic verification rules (mainly for display/reference). */
@@ -129,6 +130,10 @@ class GameplayManager {
 
         // Initialize memory with the selected setting
         this.memoryManager.setBorderSetting(setting);
+        
+        // Update travelers per day from current settings
+        this.travelersPerDay = this.settingsManager.getGameConfig().travelersPerDay;
+        
         this.memoryManager.addNarrativeEvent(
             `You begin your shift at the ${setting.name}. Day ${this.memoryManager.memory.gameState.day}.`,
             "start"
@@ -376,10 +381,11 @@ class GameplayManager {
         const day = this.memoryManager.memory.gameState.day;
         this.travelersProcessedToday = 0; // Reset counter for the new day
 
-        // Check if player has completed the target number of days (e.g., 10)
-        if (day > 10) {
+        // Check if player has completed the target number of days
+        const totalDays = this.settingsManager.getGameConfig().totalDays;
+        if (day > totalDays) {
             this.gameCompleted = true;
-            return `Assignment Complete: You have finished your 10-day assignment.`;
+            return `Assignment Complete: You have finished your ${totalDays}-day assignment.`;
         }
 
         // Example Day-specific events (can be expanded)
@@ -483,7 +489,8 @@ class GameplayManager {
             }
 
             // Set game_completed flag if loaded day is past the limit
-            this.gameCompleted = this.memoryManager.memory.gameState.day > 10;
+            const totalDays = this.settingsManager.getGameConfig().totalDays;
+            this.gameCompleted = this.memoryManager.memory.gameState.day > totalDays;
             this.travelersProcessedToday = 0; // Reset for the loaded day
 
             console.log(chalk.green("Gameplay: Game loaded. State restored."));
