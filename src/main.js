@@ -83,7 +83,7 @@ async function main() {
         if (startGameDirectly && !gameLoaded) {
              // --skip-menu without --load, start a default new game
              logger.info("--skip-menu detected, starting new game with default settings.");
-             mainMenuManager.gameplayManager.initializeGame(); // Initialize default game
+             await mainMenuManager.gameplayManager.initializeGame(); // Initialize default game
              await runGameplayLoop(mainMenuManager);
         } else if (startGameDirectly && gameLoaded) {
              // Game loaded via --load, start gameplay

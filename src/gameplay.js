@@ -107,7 +107,7 @@ class GameplayManager {
      * @param {string} [settingId=null] - ID of the border setting. If null, uses the first available.
      * @returns {object} The selected setting.
      */
-    initializeGame(settingId = null) {
+    async initializeGame(settingId = null) {
         console.log(chalk.blue("Gameplay: Initializing new game..."));
         // Reset game state for a new career/session
         this.score = 0;
@@ -138,6 +138,9 @@ class GameplayManager {
             `You begin your shift at the ${setting.name}. Day ${this.memoryManager.memory.gameState.day}.`,
             "start"
         );
+
+        // Start a new session with initial save
+        await this.memoryManager.startNewSession();
 
         return setting;
     }

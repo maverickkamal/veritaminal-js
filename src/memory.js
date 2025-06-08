@@ -24,6 +24,7 @@ class MemoryManager {
         this.saveDir = saveDir;
         this.savePath = path.join(projectRoot, this.saveDir);
         this.memory = this.getDefaultMemory();
+        this.currentSessionFile = null; // Track current session save file
         this._ensureSaveDirectory(); // Call async method without await in constructor (best practice)
     }
 
@@ -296,37 +297,19 @@ class MemoryManager {
     }
 
     /**
-     * Saves the current game state to a file.
+     * Saves the current game state. Uses session-based saving to update the same file.
      * @async
-     * @param {string} [filename=null] - Filename to save to. If null, a timestamped name is used.
+     * @param {string} [filename=null] - Filename to save to. If provided, starts a new session.
      * @returns {Promise<boolean>} True if save was successful, False otherwise.
      */
     async saveGame(filename = null) {
-        if (!filename) {
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-            filename = `veritaminal_save_${timestamp}.json`;
+        // If filename is explicitly provided, start a new session
+        if (filename) {
+            return await this.startNewSession(filename);
         }
-
-        const filePath = path.join(this.savePath, filename);
-
-        try {
-            // Ensure save directory exists before writing
-            await this._ensureSaveDirectory();
-
-            // Convert Set to Array for JSON serialization
-            const memoryToSave = {
-                ...this.memory,
-                usedNames: Array.from(this.memory.usedNames)
-            };
-
-            const data = JSON.stringify(memoryToSave, null, 2); // Pretty print JSON
-            await fs.writeFile(filePath, data, 'utf8');
-            console.log(chalk.green(`Game saved successfully to ${filename}`));
-            return true;
-        } catch (e) {
-            console.error(chalk.red(`Failed to save game to ${filePath}: ${e.message}`));
-            return false;
-        }
+        
+        // Otherwise, update current session
+        return await this.saveCurrentSession();
     }
 
     /**
@@ -363,6 +346,8 @@ class MemoryManager {
              };
 
 
+            // Set the loaded file as the current session file
+            this.setCurrentSessionFile(path.basename(filepath));
             console.log(chalk.green(`Game loaded successfully from ${path.basename(filepath)}`));
             return true;
         } catch (e) {
@@ -382,7 +367,69 @@ class MemoryManager {
         this.memory = this.getDefaultMemory();
         this.saveDir = saveDir; // Restore these after reset
         this.savePath = savePath;
+        this.currentSessionFile = null; // Clear current session when resetting
         console.log("Game memory reset to default state.");
+    }
+
+    /**
+     * Starts a new game session with a new save file.
+     * @async
+     * @param {string} [filename=null] - Optional filename. If null, generates timestamped name.
+     * @returns {Promise<boolean>} True if session started successfully.
+     */
+    async startNewSession(filename = null) {
+        if (!filename) {
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            filename = `veritaminal_save_${timestamp}.json`;
+        }
+        
+        this.currentSessionFile = filename;
+        console.log(chalk.blue(`Starting new game session: ${filename}`));
+        
+        // Save initial state to establish the file
+        return await this.saveCurrentSession();
+    }
+
+    /**
+     * Saves to the current session file, or creates a new session if none exists.
+     * @async
+     * @returns {Promise<boolean>} True if save was successful.
+     */
+    async saveCurrentSession() {
+        // If no current session, start a new one
+        if (!this.currentSessionFile) {
+            return await this.startNewSession();
+        }
+        
+        const filePath = path.join(this.savePath, this.currentSessionFile);
+
+        try {
+            // Ensure save directory exists before writing
+            await this._ensureSaveDirectory();
+
+            // Convert Set to Array for JSON serialization
+            const memoryToSave = {
+                ...this.memory,
+                usedNames: Array.from(this.memory.usedNames)
+            };
+
+            const data = JSON.stringify(memoryToSave, null, 2); // Pretty print JSON
+            await fs.writeFile(filePath, data, 'utf8');
+            console.log(chalk.green(`Session updated: ${this.currentSessionFile}`));
+            return true;
+        } catch (e) {
+            console.error(chalk.red(`Failed to update session ${filePath}: ${e.message}`));
+            return false;
+        }
+    }
+
+    /**
+     * Sets the current session file (used when loading an existing game).
+     * @param {string} filename - The filename to set as current session.
+     */
+    setCurrentSessionFile(filename) {
+        this.currentSessionFile = filename;
+        console.log(chalk.blue(`Session file set to: ${filename}`));
     }
 }
 

@@ -113,7 +113,7 @@ class MainMenuManager {
         }
 
         // Initialize new game with selected border
-        const selectedSetting = this.gameplayManager.initializeGame(selectedId);
+        const selectedSetting = await this.gameplayManager.initializeGame(selectedId);
 
         this.ui.clearScreen();
         this.ui.drawBorder("ASSIGNMENT BRIEFING");
